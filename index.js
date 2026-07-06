@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
+// Middleware to automatically parse incoming JSON payloads from webhooks
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
@@ -11,17 +12,20 @@ const PORT = process.env.PORT || 3000;
 // The Gateway Route: Where the Jira webhook tunnel hits
 app.post('/webhooks/jira', async (req, res) => {
   try {
-    
+    // 1. Immediately return a 200 OK status to Jira Cloud.
+    // This prevents Jira from timing out while our agent thinks later.
     res.status(200).json({ status: 'received' });
 
     const payload = req.body;
 
+    // 2. Defensive Engineering Guardrail
     if (!payload.issue) {
       console.log('[Webhook Warning] Received payload without issue data.');
       return;
     }
 
-    const ticketKey = payload.issue.key;
+    // 3. Extraction: Keep only what the AI agent needs
+    const ticketKey = payload.issue.key; 
     const summary = payload.issue.fields.summary; 
     const description = payload.issue.fields.description || 'No description provided.';
     const currentStatus = payload.issue.fields.status.name;
@@ -35,7 +39,21 @@ app.post('/webhooks/jira', async (req, res) => {
 
     // 4. THE AI ORCHESTRATION PIPELINE
     try {
-      const prompt = `Analyze ticket summary: "${summary}"`;
+      // PROMPT ENGINEERING: Forcing strict JSON output
+      const prompt = `
+      You are an automated Jira triage API. 
+      Analyze this ticket summary: "${summary}"
+      
+      You MUST respond ONLY with a raw, valid JSON object. 
+      Do NOT include markdown formatting, backticks, or conversational text.
+      
+      The JSON must contain exactly these three keys:
+      {
+        "category": "Choose one: BUG, FEATURE_REQUEST, SECURITY_ALERT",
+        "risk": "Choose one: LOW, MEDIUM, HIGH",
+        "justification": "One brief sentence explaining why."
+      }
+      `;
       
       // Setup a fast 1.5-second network timeout so your server doesn't hang while your partner is away
       const controller = new AbortController();
@@ -59,33 +77,37 @@ app.post('/webhooks/jira', async (req, res) => {
       clearTimeout(timeoutId);
       const aiData = await aiResponse.json();
       
-      console.log(`\n[AI Triage Report]:`);
-      console.log(aiData.response.trim());
+      // DEFENSIVE PARSING: Sanitize the AI output before parsing
+      const rawText = aiData.response;
+      const sanitizedText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+      
+      const triageResult = JSON.parse(sanitizedText); // Convert string to JS Object
+
+      console.log(`\n[Llama 3 Triage Parsed Object]:`);
+      console.log(triageResult);
+      console.log(`\n[Next Action] -> System can now route ticket based on risk: ${triageResult.risk}`);
 
     } catch (networkError) {
-      // Fallback
-      console.log(`[Notice] AI Host offline. Activating Local Llama 3 Emulator...`);
+      // 5. Automated Local Emulation Fallback (Object-Based)
+      console.log(`[Notice] AI Host offline or parsing failed. Activating Local Llama 3 Emulator...`);
       
-      let category = "FEATURE_REQUEST";
-      let risk = "LOW";
-      let justification = "The issue summary suggests standard non-breaking feature iteration or layout modifications.";
+      let triageResult = {
+        category: "FEATURE_REQUEST",
+        risk: "LOW",
+        justification: "Standard non-breaking feature iteration or layout modifications."
+      };
 
       const upperSummary = summary.toUpperCase();
       if (upperSummary.includes("BUG") || upperSummary.includes("CRASH") || upperSummary.includes("FAIL") || upperSummary.includes("ERROR")) {
-        category = "BUG";
-        risk = "MEDIUM";
-        justification = "Detected software malfunction indicator terms inside summary. Flagged for engineering debug pipeline.";
+        triageResult = { category: "BUG", risk: "MEDIUM", justification: "Detected software malfunction indicator." };
       }
       if (upperSummary.includes("VULNERABILITY") || upperSummary.includes("INJECTION") || upperSummary.includes("SECURITY") || upperSummary.includes("CRITICAL")) {
-        category = "SECURITY_ALERT";
-        risk = "HIGH";
-        justification = "High-priority classification due to threat vector indicators or sensitive authentication terms.";
+        triageResult = { category: "SECURITY_ALERT", risk: "HIGH", justification: "Threat vector indicators detected." };
       }
 
-      console.log(`\n[Emulated Llama 3 Triage Report]:`);
-      console.log(`CATEGORY: ${category}`);
-      console.log(`RISK_LEVEL: ${risk}`);
-      console.log(`JUSTIFICATION: ${justification}`);
+      console.log(`\n[Emulated Triage Parsed Object]:`);
+      console.log(triageResult);
+      console.log(`\n[Next Action] -> System can now route ticket based on risk: ${triageResult.risk}`);
     }
 
     console.log(`=========================================`);
