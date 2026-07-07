@@ -4,12 +4,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-// Middleware to automatically parse incoming JSON payloads from webhooks
+
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-// The Gateway Route: Where the Jira webhook tunnel hits
+
 app.post('/webhooks/jira', async (req, res) => {
   try {
     // 1. Immediately return a 200 OK status to Jira Cloud.
@@ -18,13 +18,11 @@ app.post('/webhooks/jira', async (req, res) => {
 
     const payload = req.body;
 
-    // 2. Defensive Engineering Guardrail
     if (!payload.issue) {
       console.log('[Webhook Warning] Received payload without issue data.');
       return;
     }
 
-    // 3. Extraction: Keep only what the AI agent needs
     const ticketKey = payload.issue.key; 
     const summary = payload.issue.fields.summary; 
     const description = payload.issue.fields.description || 'No description provided.';
@@ -39,7 +37,6 @@ app.post('/webhooks/jira', async (req, res) => {
 
     // 4. THE AI ORCHESTRATION PIPELINE
     try {
-      // PROMPT ENGINEERING: Forcing strict JSON output
       const prompt = `
       You are an automated Jira triage API. 
       Analyze this ticket summary: "${summary}"
@@ -57,9 +54,8 @@ app.post('/webhooks/jira', async (req, res) => {
       
       // Setup a fast 1.5-second network timeout so your server doesn't hang while your partner is away
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1500);
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      // We read the partner URL from the environment (or default to localhost for safety)
       const aiHost = process.env.AI_SERVICE_URL || 'http://127.0.0.1:11434';
       
       const aiResponse = await fetch(`${aiHost}/api/generate`, {
