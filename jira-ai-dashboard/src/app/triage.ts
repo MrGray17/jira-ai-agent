@@ -16,9 +16,11 @@ export interface TriageLog {
 @Injectable({
   providedIn: 'root'
 })
-export class TriageService { // This will now sit perfectly inside triage.ts
+export class TriageService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://192.168.1.99:3000/api/triage-logs';
+  
+  // Use relative URL for same-origin, or configure via environment
+  private apiUrl = 'http://localhost:3000/api/triage-logs';
 
   getTriageLogs(): Observable<TriageLog[]> {
     return this.http.get<TriageLog[]>(this.apiUrl);

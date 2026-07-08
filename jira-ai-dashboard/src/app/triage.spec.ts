@@ -1,13 +1,15 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { TriageService } from './triage';
 
-import { Triage } from './triage';
-
-describe('Triage', () => {
-  let service: Triage;
+describe('TriageService', () => {
+  let service: TriageService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Triage);
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule]
+    });
+    service = TestBed.inject(TriageService);
   });
 
   it('should be created', () => {

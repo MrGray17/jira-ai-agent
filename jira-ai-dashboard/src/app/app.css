@@ -1,0 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg-base: #050505;
+  --bg-panel: #0a0a0a;
+  --border-dim: #1f1f22;
+  --border-bright: #3a3a40;
+  
+  --text-primary: #f4f4f5;
+  --text-secondary: #8b8b93;
+  
+  --threat-critical: #ff1e56; /* Neon Red */
+  --threat-warn: #ffc400;     /* Warning Yellow */
+  --threat-low: #00e676;      /* Matrix Green */
+  --system-blue: #00f0ff;     /* Cyan */
+}
+
+/* 1. Reset & Global Background with Noise Texture */
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: var(--bg-base);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+  color: var(--text-primary);
+  font-family: 'Bricolage Grotesque', sans-serif;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.terminal-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* 2. Header Command Structure */
+.soc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid var(--border-bright);
+  padding-bottom: 16px;
+}
+
+.brand-block h1 {
+  font-size: 32px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-block h1::before {
+  content: '';
+  display: block;
+  width: 12px;
+  height: 12px;
+  background-color: var(--system-blue);
+  box-shadow: 0 0 10px var(--system-blue);
+  animation: pulse 2s infinite;
+}
+
+.meta-data {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 24px;
+}
+
+.meta-data span strong {
+  color: var(--system-blue);
+}
+
+/* 3. Brutalist Interaction Button */
+.btn-sync {
+  background: transparent;
+  color: var(--system-blue);
+  border: 1px solid var(--system-blue);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  padding: 10px 24px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.15s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-sync:hover {
+  background: var(--system-blue);
+  color: var(--bg-base);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+.btn-sync:active {
+  transform: translateY(2px);
+}
+
+/* 4. Grid & Card Architecture */
+.log-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+  gap: 24px;
+}
+
+.triage-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-dim);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  transition: border-color 0.2s ease;
+  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.triage-card:hover {
+  border-color: var(--border-bright);
+}
+
+/* Decorative corner cut effect */
+.triage-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-width: 0 16px 16px 0;
+  border-style: solid;
+  border-color: var(--bg-base) var(--bg-base) var(--border-dim) var(--border-dim);
+}
+
+/* 5. Typography & Data Layout within Cards */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  border-bottom: 1px dashed var(--border-dim);
+  padding-bottom: 12px;
+}
+
+.ticket-id {
+  color: var(--text-primary);
+  font-weight: 700;
+  background: var(--border-dim);
+  padding: 4px 8px;
+  letter-spacing: 0.05em;
+}
+
+.summary-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+/* 6. Classification Badges (Geometric & High Contrast) */
+.badge-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border: 1px solid;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Threat Categories */
+.badge-sec { color: var(--threat-critical); border-color: var(--threat-critical); background: rgba(255, 30, 86, 0.05); }
+.badge-bug { color: var(--threat-warn); border-color: var(--threat-warn); background: rgba(255, 196, 0, 0.05); }
+.badge-feat { color: var(--system-blue); border-color: var(--system-blue); background: rgba(0, 240, 255, 0.05); }
+
+/* Risk Levels */
+.risk-high { background: var(--threat-critical); color: var(--bg-base); border-color: var(--threat-critical); }
+.risk-med { background: var(--threat-warn); color: var(--bg-base); border-color: var(--threat-warn); }
+.risk-low { background: var(--threat-low); color: var(--bg-base); border-color: var(--threat-low); }
+
+/* 7. Engine Output (AI Justification) */
+.ai-output {
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 2px solid var(--border-bright);
+  padding: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.ai-output strong {
+  color: var(--text-primary);
+  margin-right: 8px;
+}
+
+/* 8. Animations & Empty States */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 0;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--border-bright);
+  border: 1px dashed var(--border-bright);
+}
+
+.empty-state span {
+  font-size: 14px;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; box-shadow: 0 0 10px var(--system-blue); }
+  50% { opacity: 0.4; box-shadow: 0 0 2px var(--system-blue); }
+  100% { opacity: 1; box-shadow: 0 0 10px var(--system-blue); }
+}
+
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
