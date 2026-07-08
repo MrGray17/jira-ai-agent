@@ -1,225 +1,222 @@
-# Setup Guide for Taha (Llama 3 + Backend Server)
+# Taha's Setup Guide
 
-This guide will help you set up the Jira AI Agent backend on your PC.
-
-## Your Role
-
-You are responsible for:
-1. Running Ollama with Llama 3
-2. Running the Node.js backend server
-3. Exposing the server via Serveo tunnel
-
-## Prerequisites
-
-- Node.js (v18 or higher)
-- Ollama installed and running
-- Llama 3 model downloaded
-- SSH access to your PC
+Follow these steps in order. Do not skip any step.
 
 ---
 
-## Step 1: Install Ollama and Llama 3
+## Step 1: Install Node.js
 
-### Install Ollama
-```bash
-# Windows
-# Download from https://ollama.com/download
+1. Go to https://nodejs.org
+2. Download the LTS version (green button)
+3. Run the installer
+4. Click "Next" through everything (use default settings)
 
-# Or using winget
-winget install Ollama.Ollama
+**Check it worked:**
+Open Command Prompt and type:
 ```
+node --version
+```
+You should see a version number like `v20.11.0`. If you see an error, restart your computer.
 
-### Download Llama 3
-```bash
+---
+
+## Step 2: Install Ollama
+
+1. Go to https://ollama.com/download
+2. Download for Windows
+3. Run the installer
+4. Click "Install"
+
+**Check it worked:**
+Open Command Prompt and type:
+```
+ollama --version
+```
+You should see a version number.
+
+---
+
+## Step 3: Download Llama 3
+
+Open Command Prompt and type:
+```
 ollama pull llama3
 ```
 
-### Verify Installation
-```bash
-# Check if Ollama is running
-ollama list
+Wait for it to finish (this takes a few minutes). You will see a progress bar.
 
-# Test Llama 3
-ollama run llama3 "Hello, respond with just 'OK'"
+**Check it worked:**
 ```
+ollama list
+```
+You should see `llama3` in the list.
 
 ---
 
-## Step 2: Clone the Repository
+## Step 4: Get the Code
 
-```bash
-# Clone the repo
+1. Open Command Prompt
+2. Type these commands one by one:
+
+```
 git clone https://github.com/MrGray17/jira-ai-agent.git
-
-# Go to the project folder
 cd jira-ai-agent
-
-# Switch to the implementation branch
 git checkout feature/full-implementation
 ```
 
 ---
 
-## Step 3: Install Dependencies
+## Step 5: Install Project Dependencies
 
-```bash
+Make sure you are in the `jira-ai-agent` folder, then type:
+
+```
 npm install
 ```
 
+Wait for it to finish. You will see a lot of text scroll by. This is normal.
+
 ---
 
-## Step 4: Configure Environment
+## Step 6: Configure the Environment
 
-```bash
-# Copy the example config
-cp .env.example .env
+Type this command:
+```
+copy .env.example .env
 ```
 
-Edit the `.env` file with the following values:
+Then open the `.env` file in Notepad:
+```
+notepad .env
+```
 
-```env
-# Server Configuration
+Make sure it looks exactly like this:
+
+```
 PORT=3000
 NODE_ENV=development
-
-# Jira Configuration (Ask Mohamed for these values)
 JIRA_BASE_URL=https://ai-agent-dev.atlassian.net
-JIRA_DATA_CENTER_PAT=your_token_here
-JIRA_WEBHOOK_SECRET=your_secret_here
-
-# AI Service (Your PC)
-AI_SERVICE_URL=http://127.0.0.1:11434
-
-# PostgreSQL (Connection to DB person's PC)
-DATABASE_URL=postgresql://user:password@localhost:5432/jira_agent
+JIRA_DATA_CENTER_PAT=ATATT3xFfGF0En4z9HXU4T-0dLH1Q85ySZBok49lgSBW2yOcRN-2q-4w7QGE3mt-OF2HKw9tB58qFa-Jx-FjCKcbj_UyO-_bhBoUBTp0SXAgxJTdlsNOxQD7F-huKEXhCY_i8mBVvS9Ba7Qb5xnR1UQgBUN0MG-rS2E4TwmbGozp6_17oqMlbzU=004CE355
+JIRA_WEBHOOK_SECRET=1155afe83dc499126a5e2560d23b723968c1830891f5de418b0d07a6715d68a6
 ```
 
-### Important Notes:
-- `JIRA_DATA_CENTER_PAT` - Ask Mohamed for this token
-- `JIRA_WEBHOOK_SECRET` - Ask Mohamed for this secret
-- `DATABASE_URL` - You'll get this from the DB person later
+Save the file (Ctrl+S) and close Notepad.
 
 ---
 
-## Step 5: Start Ollama
+## Step 7: Start Ollama
 
-```bash
-# Make sure Ollama is running on port 11434
+Open a NEW Command Prompt window and type:
+```
 ollama serve
-
-# In another terminal, verify it's working
-curl http://127.0.0.1:11434/api/tags
 ```
+
+Leave this window open. Do not close it.
 
 ---
 
-## Step 6: Start the Backend Server
+## Step 8: Start the Backend
 
-```bash
-# Start the server
+Open ANOTHER NEW Command Prompt window. Type:
+```
+cd jira-ai-agent
 npm start
 ```
 
 You should see:
 ```
 [Server] Core Orchestrator running on port 3000
-[Tunnel Target] Expose http://localhost:3000 to your network tunnel.
-[Database] Connected to PostgreSQL successfully.
 ```
 
-**Note:** If you see `[Database] Connection failed`, that's OK - the server will run in memory-only mode. The database connection will be added later.
+Leave this window open. Do not close it.
 
 ---
 
-## Step 7: Expose via Serveo
+## Step 9: Expose via Serveo
 
-```bash
-# In a new terminal, run:
+Open ANOTHER NEW Command Prompt window. Type:
+```
 ssh -R jira-ai-agent:80:127.0.0.1:3000 serveo.net
 ```
 
-You'll get a URL like:
+You will see something like:
 ```
 https://jira-ai-agent.serveo.net
 ```
 
-**Save this URL!** You'll need to give it to Mohamed for the Jira webhook configuration.
+**Write down this URL. You need to give it to Mohamed.**
 
 ---
 
-## Step 8: Test the Setup
+## Step 10: Test It
 
-### Test the Backend
-```bash
-# In a new terminal
-curl http://localhost:3000/api/health
-```
+1. Open your browser
+2. Go to: https://ai-agent-dev.atlassian.net
+3. Create a new ticket (any title is fine)
+4. Go back to your Command Prompt windows
+5. You should see text appear in the window running `npm start`
 
-Expected response:
-```json
-{
-  "status": "ok",
-  "timestamp": "2024-01-01T00:00:00.000Z",
-  "uptime": 123.456,
-  "memory": { ... }
-}
-```
+---
 
-### Test Llama 3 Connection
-```bash
-curl http://localhost:3000/api/health
-```
+## What to Tell Mohamed
 
-If Llama 3 is working, the server logs should show:
+Send him a message with:
 ```
-[AI Agent] Routing payload to Llama 3 Infrastructure...
-[Llama 3 Triage Parsed Object]: { category: '...', risk: '...', justification: '...' }
+1. [OK] Ollama is running
+2. [OK] Backend is running
+3. [FAIL] If you see any errors
+
+My Serveo URL is: https://jira-ai-agent.serveo.net
 ```
 
 ---
 
-## Troubleshooting
+## If Something Goes Wrong
 
-### Problem: "ECONNREFUSED 127.0.0.1:11434"
-**Solution:** Ollama is not running. Start it with `ollama serve`.
+**Problem: "node is not recognized"**
+Solution: Close all Command Prompt windows and open a new one. If still not working, restart your computer.
 
-### Problem: "Database Connection failed"
-**Solution:** This is OK for now. The server will work without database. You'll connect to the database later.
+**Problem: "ollama is not recognized"**
+Solution: Close all Command Prompt windows and open a new one. If still not working, restart your computer.
 
-### Problem: "Jira API Error"
-**Solution:** Check that `JIRA_DATA_CENTER_PAT` and `JIRA_BASE_URL` are correct in `.env`.
-
-### Problem: Serveo not working
-**Solution:** Try a different subdomain:
-```bash
-ssh -R my-jira-agent:80:127.0.0.1:3000 serveo.net
+**Problem: "npm start" shows an error**
+Solution: Make sure you are in the right folder. Type:
+```
+cd jira-ai-agent
+npm start
 ```
 
----
+**Problem: "Port 3000 already in use"**
+Solution: Something else is using port 3000. Close all other programs and try again.
 
-## What to Report to Mohamed
-
-After setup, tell Mohamed:
-1. [OK] Ollama is running on port 11434
-2. [OK] Backend server is running on port 3000
-3. [OK] Serveo URL is: `https://your-subdomain.serveo.net`
-4. [FAIL] Any errors you encountered
+**Problem: No tickets appear when you create one**
+Solution: Check that the Serveo URL is correct in Jira webhook settings.
 
 ---
 
-## Quick Reference
+## What You Need (Summary)
 
-| Service | Port | Command |
-|---------|------|---------|
-| Ollama | 11434 | `ollama serve` |
-| Backend | 3000 | `npm start` |
-| Serveo | 80 | `ssh -R jira-ai-agent:80:127.0.0.1:3000 serveo.net` |
+| Step | What You Install | Where to Get It |
+|------|------------------|-----------------|
+| 1 | Node.js | https://nodejs.org |
+| 2 | Ollama | https://ollama.com/download |
+| 3 | Llama 3 | `ollama pull llama3` |
+| 4 | The code | `git clone` from GitHub |
+
+---
+
+## Commands Cheat Sheet
+
+| What You Want to Do | Command |
+|---------------------|---------|
+| Start Ollama | `ollama serve` |
+| Start Backend | `cd jira-ai-agent` then `npm start` |
+| Expose via Serveo | `ssh -R jira-ai-agent:80:127.0.0.1:3000 serveo.net` |
+| Check if Ollama is running | `curl http://127.0.0.1:11434/api/tags` |
+| Check if Backend is running | `curl http://localhost:3000/api/health` |
 
 ---
 
 ## Need Help?
 
-Contact Mohamed if you have any issues. He will provide:
-- Jira credentials
-- Database connection details
-- Webhook configuration
+Contact Mohamed. He will help you.

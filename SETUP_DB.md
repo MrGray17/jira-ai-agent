@@ -1,237 +1,212 @@
-# Setup Guide for Database Person (PostgreSQL)
+# Database Setup Guide
 
-This guide will help you set up PostgreSQL for the Jira AI Agent project.
-
-## Your Role
-
-You are responsible for:
-1. Running PostgreSQL database
-2. Creating the database and tables
-3. Allowing connections from Taha's PC (backend server)
-
----
-
-## Prerequisites
-
-- PostgreSQL installed and running
-- Network access between your PC and Taha's PC
+Follow these steps in order. Do not skip any step.
 
 ---
 
 ## Step 1: Install PostgreSQL
 
-### Windows
-```bash
-# Download from https://www.postgresql.org/download/windows/
-
-# Or using winget
-winget install PostgreSQL.PostgreSQL.16
-```
-
-### During Installation
-- Set a password for the `postgres` user (remember this!)
-- Default port: 5432
-- Keep the default locale
+1. Go to https://www.postgresql.org/download/windows/
+2. Download the installer (click the big blue button)
+3. Run the installer
+4. When it asks for a password, type a password you will remember. **Write it down.**
+5. Click "Next" through everything else (use default settings)
+6. Finish the installation
 
 ---
 
-## Step 2: Create Database
+## Step 2: Open PostgreSQL Command Line
 
-```bash
-# Open PostgreSQL command line (psql)
-# You can find it in Start Menu as "pgAdmin 4" or "SQL Shell (psql)"
+1. Open the Start Menu
+2. Type `psql`
+3. Click on "SQL Shell (psql)"
+4. It will ask for several things. Just press Enter for all of them EXCEPT the password
+5. When it asks for password, type the password you set in Step 1
 
-# Connect to PostgreSQL
-psql -U postgres
+You should see something like:
+```
+postgres=#
+```
 
-# Enter your password when prompted
+---
 
-# Create the database
+## Step 3: Create the Database
+
+Type this command and press Enter:
+```sql
 CREATE DATABASE jira_agent;
+```
 
-# Verify it was created
-\l
-
-# Exit psql
-\q
+You should see:
+```
+CREATE DATABASE
 ```
 
 ---
 
-## Step 3: Create Database User (Optional but Recommended)
+## Step 4: Create a User
 
-For security, create a dedicated user instead of using `postgres`:
+Type this command and press Enter:
+```sql
+CREATE USER jira_agent_user WITH PASSWORD 'MySecurePass123';
+```
 
-```bash
-# Connect to PostgreSQL
-psql -U postgres
-
-# Create a new user
-CREATE USER jira_agent_user WITH PASSWORD 'secure_password_here';
-
-# Grant privileges
-GRANT ALL PRIVILEGES ON DATABASE jira_agent TO jira_agent_user;
-
-# Exit
-\q
+You should see:
+```
+CREATE ROLE
 ```
 
 ---
 
-## Step 4: Configure PostgreSQL for Remote Connections
+## Step 5: Give the User Permission
 
-### Find your IP address
-```bash
-# Windows
-ipconfig
-
-# Look for "IPv4 Address" - it will be something like 192.168.1.xxx
-```
-
-### Edit pg_hba.conf
-This file allows remote connections. Location:
-- Windows: `C:\Program Files\PostgreSQL\16\data\pg_hba.conf`
-
-Add this line at the end:
-```
-# Allow connections from local network
-host    all    all    192.168.1.0/24    md5
-```
-
-**Note:** Replace `192.168.1.0/24` with your actual network range. If you're on the same WiFi, this should work.
-
-### Edit postgresql.conf
-Location: `C:\Program Files\PostgreSQL\16\data\postgresql.conf`
-
-Find and change:
-```
-# Before:
-#listen_addresses = 'localhost'
-
-# After:
-listen_addresses = '*'
-```
-
-### Restart PostgreSQL
-```bash
-# Windows Services
-# Open Services app (services.msc)
-# Find "postgresql" service and restart it
-
-# Or using command line (Run as Administrator)
-net stop postgresql-x64-16
-net start postgresql-x64-16
-```
-
----
-
-## Step 5: Test Remote Connection
-
-### From your PC
-```bash
-psql -U jira_agent_user -d jira_agent -h localhost
-```
-
-### From Taha's PC (after he sets up)
-```bash
-psql -U jira_agent_user -d jira_agent -h YOUR_IP_ADDRESS
-```
-
----
-
-## Step 6: Provide Connection Details to Taha
-
-Give Taha this information:
-
-```
-Host: YOUR_IP_ADDRESS (e.g., 192.168.1.xxx)
-Port: 5432
-Database: jira_agent
-User: jira_agent_user
-Password: secure_password_here
-```
-
-The connection string will be:
-```
-postgresql://jira_agent_user:secure_password_here@192.168.1.xxx:5432/jira_agent
-```
-
----
-
-## Step 7: Tables Will Be Created Automatically
-
-When Taha starts the backend server, the tables will be created automatically:
-- `triage_logs` - Stores AI classification results
-- `sla_tracking` - Tracks ticket age and SLA status
-
-You don't need to create them manually.
-
----
-
-## Troubleshooting
-
-### Problem: "Connection refused"
-**Solution:** 
-- Check if PostgreSQL is running
-- Check if the port is correct (default: 5432)
-- Check firewall settings
-
-### Problem: "Password authentication failed"
-**Solution:**
-- Verify the username and password
-- Check pg_hba.conf has the correct authentication method
-
-### Problem: "Could not connect to server"
-**Solution:**
-- Make sure `listen_addresses = '*'` in postgresql.conf
-- Check if firewall is blocking port 5432
-- Verify both PCs are on the same network
-
-### Problem: "Permission denied for database"
-**Solution:**
-- Grant privileges to the user:
+Type this command and press Enter:
 ```sql
 GRANT ALL PRIVILEGES ON DATABASE jira_agent TO jira_agent_user;
 ```
 
----
-
-## Firewall Configuration (If Needed)
-
-If Taha can't connect, you may need to allow port 5432 through Windows Firewall:
-
-```bash
-# Run Command Prompt as Administrator
-
-# Add firewall rule
-netsh advfirewall firewall add rule name="PostgreSQL" dir=in action=allow protocol=TCP localport=5432
+You should see:
+```
+GRANT PRIVILEGES
 ```
 
 ---
 
-## What to Report to Mohamed
+## Step 6: Exit PostgreSQL
 
-After setup, tell Mohamed:
-1. [OK] PostgreSQL is running on port 5432
-2. [OK] Database `jira_agent` is created
-3. [OK] User `jira_agent_user` is created
-4. [OK] Remote connections are enabled
-5. [OK] Connection string: `postgresql://jira_agent_user:password@YOUR_IP:5432/jira_agent`
-6. [FAIL] Any errors you encountered
+Type this command and press Enter:
+```
+\q
+```
 
 ---
 
-## Quick Reference
+## Step 7: Find Your IP Address
 
-| Item | Value |
-|------|-------|
-| Database | jira_agent |
-| User | jira_agent_user |
-| Port | 5432 |
-| Config files | `C:\Program Files\PostgreSQL\16\data\` |
+1. Open Command Prompt (type `cmd` in Start Menu)
+2. Type:
+```
+ipconfig
+```
+3. Look for "IPv4 Address" - it looks like `192.168.1.xxx`
+4. **Write down this number.** You need to give it to Mohamed.
+
+---
+
+## Step 8: Allow Remote Connections
+
+1. Open File Explorer
+2. Go to: `C:\Program Files\PostgreSQL\16\data\`
+3. Find the file `pg_hba.conf`
+4. Right-click it, open with Notepad
+5. Scroll to the very bottom
+6. Add this line at the end:
+```
+host    all    all    192.168.1.0/24    md5
+```
+7. Save the file (Ctrl+S)
+
+---
+
+## Step 9: Enable Network Access
+
+1. In the same folder, find `postgresql.conf`
+2. Right-click it, open with Notepad
+3. Press Ctrl+F and search for `listen_addresses`
+4. You will see something like:
+```
+#listen_addresses = 'localhost'
+```
+5. Change it to:
+```
+listen_addresses = '*'
+```
+6. Remove the `#` at the beginning
+7. Save the file (Ctrl+S)
+
+---
+
+## Step 10: Restart PostgreSQL
+
+1. Press `Win + R`, type `services.msc`, press Enter
+2. Find `postgresql` in the list
+3. Right-click it and select "Restart"
+
+---
+
+## Step 11: Test the Connection
+
+1. Open Command Prompt
+2. Type:
+```
+psql -U jira_agent_user -d jira_agent -h localhost
+```
+3. When it asks for password, type: `MySecurePass123`
+4. You should see:
+```
+jira_agent=#
+```
+5. Type `\q` to exit
+
+---
+
+## What to Tell Mohamed
+
+Send him a message with this information:
+```
+My IP address is: 192.168.1.xxx
+My database connection string is:
+postgresql://jira_agent_user:MySecurePass123@192.168.1.xxx:5432/jira_agent
+```
+
+Replace `192.168.1.xxx` with your actual IP address from Step 7.
+
+---
+
+## If Something Goes Wrong
+
+**Problem: "psql" is not recognized**
+Solution: Close the Command Prompt and open a new one. If still not working, restart your computer.
+
+**Problem: "password authentication failed"**
+Solution: Make sure you typed the correct password. Passwords in PostgreSQL are case-sensitive.
+
+**Problem: "connection refused"**
+Solution: Make sure PostgreSQL is running. Open Services (services.msc) and check that postgresql says "Running".
+
+**Problem: "permission denied"**
+Solution: Make sure you ran the GRANT command in Step 5.
+
+---
+
+## What You Need (Summary)
+
+| Step | What You Do |
+|------|-------------|
+| 1 | Install PostgreSQL |
+| 2 | Create database `jira_agent` |
+| 3 | Create user `jira_agent_user` |
+| 4 | Give user permission |
+| 5 | Allow remote connections |
+| 6 | Find your IP address |
+| 7 | Give connection string to Mohamed |
+
+---
+
+## Commands Cheat Sheet
+
+| What You Want to Do | Command |
+|---------------------|---------|
+| Open PostgreSQL | Type `psql` in Start Menu |
+| Create database | `CREATE DATABASE jira_agent;` |
+| Create user | `CREATE USER jira_agent_user WITH PASSWORD 'MySecurePass123';` |
+| Give permission | `GRANT ALL PRIVILEGES ON DATABASE jira_agent TO jira_agent_user;` |
+| Exit PostgreSQL | `\q` |
+| Find IP address | `ipconfig` in Command Prompt |
+| Test connection | `psql -U jira_agent_user -d jira_agent -h localhost` |
 
 ---
 
 ## Need Help?
 
-Contact Mohamed if you have any issues. He will coordinate with Taha for testing the connection.
+Contact Mohamed. He will help you.
