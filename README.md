@@ -14,17 +14,15 @@ This system automatically:
 ## Architecture
 
 ```
-┌─────────────────┐    Webhook    ┌──────────────────┐    ┌───────────────────┐
-│  Jira Cloud     │─────────────▶│  Node.js Backend  │───▶│  Llama 3 (Ollama) │
-│  (KAN board)    │              │  :3000             │    │  :11434            │
-└─────────────────┘              └────────┬─────────┘    └───────────────────┘
-                                          │
-                                          ▼
-                                 ┌──────────────────┐
-                                 │  PostgreSQL       │
-                                 │  (triage logs,    │
-                                 │   SLA tracking)   │
-                                 └──────────────────┘
+Jira Cloud (KAN board)
+    |
+    | Webhook
+    v
+Node.js Backend (:3000)
+    |
+    |--> Llama 3 (Ollama :11434) - AI Classification
+    |
+    |--> PostgreSQL - Triage Logs & SLA Tracking
 ```
 
 ## Setup Instructions
@@ -76,7 +74,7 @@ ssh -R your-subdomain:80:127.0.0.1:3000 serveo.net
 
 ### 5. Configure Jira Webhook
 
-1. Go to Jira → Settings → Webhooks
+1. Go to Jira -> Settings -> Webhooks
 2. Add new webhook:
    - URL: `https://your-subdomain.serveo.net/webhooks/jira`
    - Events: Issue created

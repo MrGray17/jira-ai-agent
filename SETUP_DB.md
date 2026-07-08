@@ -212,12 +212,12 @@ netsh advfirewall firewall add rule name="PostgreSQL" dir=in action=allow protoc
 ## What to Report to Mohamed
 
 After setup, tell Mohamed:
-1. ✅ PostgreSQL is running on port 5432
-2. ✅ Database `jira_agent` is created
-3. ✅ User `jira_agent_user` is created
-4. ✅ Remote connections are enabled
-5. ✅ Connection string: `postgresql://jira_agent_user:password@YOUR_IP:5432/jira_agent`
-6. ❌ Any errors you encountered
+1. [OK] PostgreSQL is running on port 5432
+2. [OK] Database `jira_agent` is created
+3. [OK] User `jira_agent_user` is created
+4. [OK] Remote connections are enabled
+5. [OK] Connection string: `postgresql://jira_agent_user:password@YOUR_IP:5432/jira_agent`
+6. [FAIL] Any errors you encountered
 
 ---
 

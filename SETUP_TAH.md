@@ -200,10 +200,10 @@ ssh -R my-jira-agent:80:127.0.0.1:3000 serveo.net
 ## What to Report to Mohamed
 
 After setup, tell Mohamed:
-1. ✅ Ollama is running on port 11434
-2. ✅ Backend server is running on port 3000
-3. ✅ Serveo URL is: `https://your-subdomain.serveo.net`
-4. ❌ Any errors you encountered
+1. [OK] Ollama is running on port 11434
+2. [OK] Backend server is running on port 3000
+3. [OK] Serveo URL is: `https://your-subdomain.serveo.net`
+4. [FAIL] Any errors you encountered
 
 ---
 
