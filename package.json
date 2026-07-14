@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "NODE_ENV=development node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run tests/",
+    "test:watch": "vitest tests/"
   },
   "keywords": ["jira", "ai", "triage", "automation"],
   "author": "",
@@ -16,5 +17,8 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.8"
   }
 }
