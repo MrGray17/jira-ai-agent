@@ -4,11 +4,25 @@
 
 ```
 jira-ai-agent/
-  index.js                          (Backend - Node.js/Express)
+  index.js                          (Backend entry point)
   package.json                      (Backend dependencies)
   .env                              (Environment config - NOT in git)
   .env.example                      (Environment template)
   .gitignore
+  src/
+    db.js                           (PostgreSQL connection & table init)
+    middleware/
+      cors.js                       (CORS middleware)
+      auth.js                       (HMAC signature verification)
+    services/
+      ai.js                         (Llama 3 AI classification + fallback)
+      jira.js                       (Jira REST API transitions)
+      sla.js                        (SLA breach detection)
+    routes/
+      webhooks.js                   (Jira webhook handler)
+      api.js                        (REST API endpoints)
+  tests/
+    webhook.test.js                 (Unit tests)
   jira-ai-dashboard/
     package.json                    (Frontend dependencies)
     src/
@@ -398,7 +412,8 @@ app.listen(PORT, () => {
   "scripts": {
     "start": "node index.js",
     "dev": "NODE_ENV=development node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": ["jira", "ai", "triage", "automation"],
   "author": "",
@@ -408,6 +423,9 @@ app.listen(PORT, () => {
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.8"
   }
 }
 ```
@@ -419,10 +437,10 @@ app.listen(PORT, () => {
 ```
 PORT=3000
 NODE_ENV=development
-JIRA_BASE_URL=https://ai-agent-dev.atlassian.net
-JIRA_DATA_CENTER_PAT=ATATT3xFfGF0En4z9HXU4T-0dLH1Q85ySZBok49lgSBW2yOcRN-2q-4w7QGE3mt-OF2HKw9tB58qFa-Jx-FjCKcbj_UyO-_bhBoUBTp0SXAgxJTdlsNOxQD7F-huKEXhCY_i8mBVvS9Ba7Qb5xnR1UQgBUN0MG-rS2E4TwmbGozp6_17oqMlbzU=004CE355
-JIRA_WEBHOOK_SECRET=1155afe83dc499126a5e2560d23b723968c1830891f5de418b0d07a6715d68a6
-DATABASE_URL=postgresql://jira_agent_user:1234@192.168.1.114:5432/jira_agent
+JIRA_BASE_URL=https://your-jira-instance.atlassian.net
+JIRA_DATA_CENTER_PAT=your_personal_access_token_here
+JIRA_WEBHOOK_SECRET=your_webhook_secret_here
+DATABASE_URL=postgresql://user:password@localhost:5432/jira_agent
 ```
 
 ---
