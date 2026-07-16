@@ -19,3 +19,5 @@ logs/
 # Operating System Garbage Files
 .DS_Store
 Thumbs.db
+
+CODEBASE.md

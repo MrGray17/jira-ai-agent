@@ -9,11 +9,17 @@
     "test": "vitest run tests/",
     "test:watch": "vitest tests/"
   },
-  "keywords": ["jira", "ai", "triage", "automation"],
+  "keywords": [
+    "jira",
+    "ai",
+    "triage",
+    "automation"
+  ],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "pg": "^8.13.0"
